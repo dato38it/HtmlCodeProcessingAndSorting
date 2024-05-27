@@ -1,0 +1,122 @@
+Task:
+Установка виртуальной машины Windows в Qemu-Kvm
+Decision:
+# virt-install \
+--name Windows \
+--ram 2048 \
+--disk path=/ПУТЬ/Windows.img,size=75 \
+--vcpus 2 \
+--os-variant Windows \
+--network bridge=br0 \
+--graphics none \
+--console pty,target_type=serial \
+--location /var/lib/libvirt/iso/Windows.iso \
+--extra-args 'console=ttyS0,115200n8'
+$ sudo virsh list --all
+ ID   Имя           Состояние
+-------------------------------
+...
+ -    Windows       выключен
+$ sudo virsh start Windows
+Task:
+Настройка удаленного доступа к виртуальной машине для передачи файлов
+Decision:
+Панель управления - Система - Настройка удаленного доступа - +разрешить подключения удаленного помощника к этому компьютеру - +разрешить удаленные подключения к этому компьютеру - -Разрешить подключение только с компьютеров, ...
+$ sudo dnf install rdesktop
+$ rdesktop IP -u tuser -p tpassword -g 1400x900
+PS C:\Windows\system32> Add-WindowsCapability -Online -Name OpenSSH.Client~~~~0.0.1.0
+PS C:\Windows\system32> Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0
+PS C:\Windows\system32> Get-WindowsCapability -Online | Where-Object Name -like 'OpenSSH*'
+Name  : OpenSSH.Client~~~~0.0.1.0
+State : Installed
+Name  : OpenSSH.Server~~~~0.0.1.0
+State : Installed
+PS C:\Windows\system32> Start-Service sshd
+PS C:\Windows\system32> Set-Service -Name sshd -StartupType 'Automatic'
+PS C:\Windows\System32\OpenSSH> notepad.exe C:\ProgramData\ssh\sshd_config
+tuser@KVM-TWINDOWS C:\Users\tuser>type C:\ProgramData\ssh\sshd_config
+...
+PasswordAuthentication yes
+...
+# override default of no subsystems
+Subsystem    sftp    sftp-server.exe
+...
+Match User tuser
+    ChrootDirectory C:\Users\tuser\Documents
+#    ForceCommand internal-sftp
+    X11Forwarding yes
+...
+PS C:\Windows\System32\OpenSSH> Restart-Service sshd
+$ ssh tuser@IP
+tuser@KVM-TWINDOWS C:\Users\tuser>powershell
+PS C:\Users\tuser> Start-Process powershell -Verb runAs
+PS C:\Users\tuser> exit
+$ ls
+DataProcessingInCpp  Drivers  ReceivingDataFromSatellite
+$ sftp tuser@IP
+sftp> put -r ReceivingDataFromSatellite
+sftp> put -r DataProcessingInCpp
+sftp> ls
+DataProcessingInCpp                                                             
+ReceivingDataFromSatellite
+sftp> exit
+$ rdesktop IP -u tuser -p tpassword -g 1400x900 &
+Task:
+Получение данных с одночастотного приемника СРНС
+Decision:
+Для проверки способа определения вариации ионосферной задержки 19 мая 2015 года провел обработку данных измерения навигационных сигналов от нескольких НС. Для измерений использовался 20 канальный  одночастотный  приемник BU-353 фирмы  GlobalSat. Этот приемник предназначен для ГНСС GPS, работает на частоте L1 по C/A коду и имеет высокую чувствительность 159 дБм. Данные о псевдодальностях доступны только при использовании бинарного протокола, поэтому при наблюдениях применялась программа SirfTech версии 2.20 и данные записывались в RINEX файл.
+Task:
+Установка Borland C++ Builder под Windows
+Decision:
+$ ssh tuser@IP
+tuser@KVM-TWINDOWS C:\Users\tuser>powershell
+PS C:\users\tuser\documents> Mount-DiskImage -ImagePath "C:\users\tuser\documents\DataProcessingInCpp\Borland C++ Builder 6.0 Enterprise [cd1].iso"
+zPS C:\users\tuser\documents> Get-PSDrive -PSProvider FileSystem
+Name           Used (GB)     Free (GB) Provider      Root                                                                                               CurrentLocation
+----           ---------     --------- --------      ----                                                                                               ---------------
+C                  25,27         49,16 FileSystem    C:\                                                                                          users\tuser\documents
+D                   4,32          0,00 FileSystem    D:\
+E                                      FileSystem    E:\
+F                   0,61          0,00 FileSystem    F:\
+PS C:\users\tuser\documents> ls F:\
+    Каталог: F:\
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d-----        01.02.2002     17:00                Install
+--r---        01.02.2002     17:00          29550 license.txt
+--r---        01.02.2002     17:00          54878 readme.rtf
+--r---        01.02.2002     17:00          33959 readme.txt
+--r---        01.02.2002     17:00          29550 license.txt
+--r---        01.02.2002     17:00          54878 readme.rtf
+--r---        01.02.2002     17:00          33959 readme.txt
+--r---        01.02.2002     17:00           5337 remote.rtf
+--r---        01.02.2002     17:00           1750 remote.txt
+--r---        01.02.2002     17:00           1750 install.exe
+Запустим от администратора install.exe - выбираем С++ Builder 6 - нужно ввести сгенерированный ключ программы, зайдя в папку Borland - запустить генератор ключей Borland KeyGen - копируем - вставляем серийный номер - ключ программы в установщик
+PS C:\users\tuser\documents> Dismount-DiskImage -ImagePath "C:\users\tuser\documents\DataProcessingInCpp\Borland C++ Builder 6.0 Enterprise [cd1].iso"
+PS C:\users\tuser\documents> Mount-DiskImage -ImagePath "C:\users\tuser\documents\DataProcessingInCpp\Borland C++ Builder 6.0 Enterprise [cd2].iso"
+Ок - finish - NO (Ни в коем случае не перезагружаться)
+PS C:\users\tuser\documents> Dismount-DiskImage -ImagePath "C:\users\tuser\documents\DataProcessingInCpp\Borland C++ Builder 6.0 Enterprise [cd2].iso"
+C:\Programms file (x86)\Bornald\Builder\Bin\ - свойства совместимости bcb.exe - +всегда выполнять от администратора это программу - Запускаем bcb.exe - +регистрируем ее с помощью генератора ключей Borland KeyGe - копировать - вставить - перезагрузиться
+Task:
+Мы хотим чтобы наша программа с графическим интерфейсом с нами поздоровалась в Bornald Builder
+Decision:
+//---------------------------------------------------------------------------
+#include <vcl.h>
+#pragma hdrstop
+#include "Unit1.h"
+//---------------------------------------------------------------------------
+#pragma package(smart_init)
+#pragma resource "*.dfm"
+TForm1 *Form1;
+//---------------------------------------------------------------------------
+__fastcall TForm1::TForm1(TComponent* Owner)
+        : TForm(Owner)
+{
+}
+//---------------------------------------------------------------------------
+void __fastcall TForm1::Button1Click(TObject *Sender)
+{
+        ShowMessage("Hello world!");
+}
+//---------------------------------------------------------------------------
