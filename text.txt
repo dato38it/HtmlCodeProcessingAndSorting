@@ -1,4 +1,0 @@
-Source:
-# https://stackoverflow.com/questions/18180060/how-to-zip-a-file-using-cmd-line - How to zip a file using cmd line?
-# https://learn.microsoft.com/ru-ru/windows-server/administration/windows-commands/del - del.
-# https://www.dmosk.ru/miniinstruktions.php?mini=7zip-cmd - Резервное копирование с помощью 7-Zip.

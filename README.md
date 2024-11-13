@@ -1,63 +1,47 @@
-# обработка и сортировка данных на сайтах
-
-<p># Обработка и сортирока Html-кода.<br>
-# Парсинг сайта.</p>
-<p><strong>Task:</strong><br>
-Обработка и сортирока Html-кода. В файле text.txt следующая информация:
-<br>$ cat settings.py<br>...<br>DATABASES = {<br>&nbsp;&nbsp;&nbsp;'default': {<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#'ENGINE': 'django.db.backends.sqlite3',<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#'NAME': BASE_DIR / 'db.sqlite3',<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'ENGINE': 'django.db.backends.postgresql_psycopg2',<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'PORT': '5432',<br>&nbsp;&nbsp;&nbsp;}<br>}<br>...<br>
-Надо текст преобразовать в html формат и записать результат в output.txt:
-<br><p>$ cat settings.py<br>...<br>DATABASES = {<br>&nbsp;&nbsp;&nbsp; 'default': {<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #'ENGINE': 'django.db.backends.sqlite3',<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #'NAME': BASE_DIR / 'db.sqlite3',<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'ENGINE': 'django.db.backends.postgresql_psycopg2',<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'PORT': '5432',<br>&nbsp;&nbsp;&nbsp; }<br>}<br>...</p><br>
-Source:<br>
-# https://pythonworld.ru/tipy-dannyx-v-python/fajly-rabota-s-fajlami.html - Чтение из файла.<br>
-# https://docs-python.ru/tutorial/chtenie-zapis-fajl/odnovremennoe-chtenie-zapis-raznye-fajly/ - Работа с несколькими файлами в Python.<br>
-# https://sky.pro/media/chtenie-fajla-postrochno-v-spisok-na-python/ - Использование встроенной функции open().<br>
-# https://sky.pro/media/chtenie-fajla-postrochno-v-spisok-na-python/?ysclid=lv9i6ky8w2363195830 - Использование генераторов.<br>
-# https://translated.turbopages.org/proxy_u/en-ru.ru.8446d21d-66250fbc-1552d51e-74722d776562/https/stackoverflow.com/questions/54785152/replace-tab-with-space-in-entire-text-file-python?__ya_mt_enable_static_translations=1 - Заменить табуляцию пробелом во всем текстовом файле python.<br>
-# https://pythonturbo.ru/kak-v-python-dobavit-tekst-v-fajl/ - Добавление текста в файл с помощью оператора with<br>
-<strong>Task:</strong><br>
-Парсинг сайта. Проверить все страницы сайта на отсутствие pdf файлов больше 15 Мб.<br>
-<strong>Decision:</strong><br>
-$ wget https://tsite.ru/sveden/document<br>
---2018-11-01 20:12:20-- https://tsite.ru/sveden/document<br>
-Распознаётся tsite.ru (tsite.ru)… IpAddr<br>
-Подключение к tsite.ru (tsite.ru)|IpAddr|:443... соединение установлено.<br>
-ОШИБКА: Нет доверия сертификату для «tsite.ru».<br>
-ОШИБКА: Неизвестный издатель сертификата «tsite.ru».<br>
-$ wget --no-check-certificate -r -l 1 -A pdf https://tsite.ru/sveden/document<br>
-$ vim FileWeight.sh<br>
-$ chmod +x FileWeight.sh<br>
-$ cat FileWeight.sh<br>
-#!/bin/bash<br>
-echo -n "Enter a link to the site: "<br>
-read linksite<br>
-user=$(whoami)<br>
-echo -n "Come up with a name for the directory where the files will be written: "<br>
-read linkfiles<br>
-if [ -d /home/$user/$linkfiles ]; then<br>
-rm -rf /home/$user/$linkfiles<br>
-echo "/home/$user/$filename delete"<br>
-else<br>
-mkdir /home/$user/$linkfiles<br>
-cd /home/$user/$linkfiles<br>
-echo "/home/$user/$linkfiles create"<br>
-fi<br>
-wget --no-check-certificate -r -l 1 -A pdf $linksite<br>
-find /home/$user/$linkfiles -size +15M &gt; output<br>
-$ ./FileWeight.sh<br>
-Enter a link to the site: https://tsite.ru/sveden/document<br>
-Come up with a name for the directory where the files will be written: tdir<br>
-/home/tUser/tdir create<br>
-...<br>
-$ cat /home/tUser/tdir/output<br>
-/home/tUser/tdir/tsite.ru/Media/irk/Документы института/2018/tDoc1.pdf<br>
-$ ls -l /home/tUser/tdir/tsite.ru/Media/irk/Документы\ института/2018/tDoc1.pdf&nbsp;<br>
--rw-r--r--. 1 tUser tUser 20055320 июн 30 2018 '/home/tUser/tdir/tsite.ru/Media/irk/Документы института/2018/tDoc1.pdf'<br>
-<strong>Task:</strong><br>
-Отсортировать html-код страницы по атрибутам &lt;tr&gt;&lt;td&gt;<br>
-<strong>Decision:</strong><br>
-<strong>Task:</strong><br>
-Поменять/добавить тег на странице с таблицей,в некоторых строках тег отсутствует<br>
-<strong>Decision:</strong><br>
-<strong>Source:</strong><br>
-# https://stackoverflow.com/questions/4846007/check-if-directory-exists-and-delete-in-one-command-unix<br>
+<p>
+    Цель:<br>
+    # Преобразовать текст в html код формат.<br>
+    # Изменить тэги по по запросу руководства.<br>
+    Skills:<br>
+    # Обработка и сортирока Html-кода.<br>
+    # Парсинг сайта.<br>
+    <strong>Task:</strong><br>
+    В файле input.txt надо обычный текст преобразовать в html код формат, добавив только необходимые тэги, и записать результат в output.html.<br>
+    # Обработка и сортирока Html-кода.<br>
+    <strong>Decision:</strong><br>
+    root@kvmubuntu:~# vim py.py<br>
+    root@kvmubuntu:~# cat py.py<br>
+    #tag - теги html<br>
+    #file - переменная файла<br>
+    #fileread - считывание файла<br>
+    #replacetags - замена тегов<br>
+    #addtags - добавление тега p в файле<br>
+    #tags=["&lt;p&gt;","&lt;/p&gt;","&lt;br&gt;","&nbsp;&nbsp;&nbsp;"]<br>
+    tags=["&lt;", "&gt;", "&lt;br&gt;", "&nbsp;&nbsp;", "&lt;strong&gt;<strong>Task:</strong>&lt;/strong&gt;", "&lt;strong&gt;<strong>Decision:</strong>&lt;/strong&gt;", "&lt;strong&gt;<strong>Source:</strong>&lt;/strong&gt;"]<br>
+    #print(tags[2])<br>
+    with open("text.txt") as file:<br>
+    &nbsp;&nbsp;fileread = file.read()<br>
+    &nbsp;&nbsp;#print(fileread)<br>
+    replacetags=fileread.replace("&lt;", tags[0]).replace("&gt;",tags[1]).replace("\n", tags[2]).replace("&nbsp;&nbsp;", tags[3]).replace("<strong>Task:</strong>", tags[4]).replace("<strong>Decision:</strong>", tags[5]).replace("<strong>Source:</strong>", tags[6])<br>
+    #print(replacetags)<br>
+    addtags = "&lt;p&gt;"+replacetags+"&lt;/p&gt;"<br>
+    with open("output.txt", "w") as file:<br>
+    &nbsp;&nbsp;file.write(addtags+"\n")<br>
+    <strong>Source:</strong><br>
+    # <a href="https://pythonworld.ru/tipy-dannyx-v-python/fajly-rabota-s-fajlami.html">https://pythonworld.ru/tipy-dannyx-v-python/fajly-rabota-s-fajlami.html</a> - Чтение из файла.<br>
+    # <a href="https://docs-python.ru/tutorial/chtenie-zapis-fajl/odnovremennoe-chtenie-zapis-raznye-fajly/">https://docs-python.ru/tutorial/chtenie-zapis-fajl/odnovremennoe-chtenie-zapis-raznye-fajly/</a> - Работа с несколькими файлами в Python.<br>
+    # <a href="https://sky.pro/media/chtenie-fajla-postrochno-v-spisok-na-python/">https://sky.pro/media/chtenie-fajla-postrochno-v-spisok-na-python/</a> - Использование встроенной функции open().<br>
+    # <a href="https://sky.pro/media/chtenie-fajla-postrochno-v-spisok-na-python/?ysclid=lv9i6ky8w2363195830">https://sky.pro/media/chtenie-fajla-postrochno-v-spisok-na-python/?ysclid=lv9i6ky8w2363195830</a> - Использование генераторов.<br>
+    # <a href="https://translated.turbopages.org/proxy_u/en-ru.ru.8446d21d-66250fbc-1552d51e-74722d776562/https/stackoverflow.com/questions/54785152/replace-tab-with-space-in-entire-text-file-python?__ya_mt_enable_static_translations=1">https://translated.turbopages.org/proxy_u/en-ru.ru.8446d21d-66250fbc-1552d51e-74722d776562/https/stackoverflow.com/questions/54785152/replace-tab-with-space-in-entire-text-file-python?__ya_mt_enable_static_translations=1</a> - Заменить табуляцию пробелом во всем текстовом файле python.<br>
+    # <a href="https://pythonturbo.ru/kak-v-python-dobavit-tekst-v-fajl/">https://pythonturbo.ru/kak-v-python-dobavit-tekst-v-fajl/</a> - Добавление текста в файл с помощью оператора with<br>
+    <strong>Task:</strong><br>
+    На странице https://tdomain.ru/sveden/education под поле "Образовательная программа, направленность, профиль, шифр и наименование научной специальности" в таблице "Образование" (информация по образовательным программам) необходимо добавить тег itemprop="eduProf". В данной таблице тег &lt;tr itemprop="eduOp"&gt;, который нужно заменить на &lt;tr itemprop="eduOprog"&gt;.<br>
+    # Парсинг сайта.<br>
+    <strong>Decision:</strong><br>
+    БУДЕТ КОД. ИНФОРМАЦИЯ БУДЕТ ДОПОЛНЯТЬСЯ. ШАГИ ВЫПОЛНЕНИЯ:<br>
+    1. Прорамма будет апрашивать страницу для парсинга.<br>
+    2. Парсинг страницы сайта по тегам<br>
+    3. Поиск тега который нужно аменить<br>
+    4. амена тега<br>
+    5. Публикация именения на сайт
 </p>
